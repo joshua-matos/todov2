@@ -5,9 +5,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 !**/src
-node_nodules
 src/frontend/node_modules/
-
+/node_modules/
+node_modules/
 ### STS ###
 .apt_generated
 .classpath

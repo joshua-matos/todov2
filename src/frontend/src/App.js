@@ -1,22 +1,20 @@
 import './App.css';
 import * as React from 'react';
-import {useEffect, useState} from "react";
+import {useEffect, useState} from 'react';
 import axios from "axios";
 import ResponsiveAppBar from "./ResponsiveAppBar";
-import {Alert, Button, Grid, OutlinedInput} from '@mui/material';
+import {Alert, Button, FormControl, Grid} from '@mui/material';
 import LabelBottomNavigation from "./LabelBottomNavigation";
 import Box from "@mui/material/Box";
-import {DataGrid, GridCellEditStopReasons} from '@mui/x-data-grid';
+import {DataGrid} from '@mui/x-data-grid';
 import TodoCreator from "./TodoCreator";
 import Items from "./Items";
 import CheckIcon from '@mui/icons-material/Check';
-import {GridValueSetterParams} from "@mui/x-data-grid";
-import {GridCellEditStopParams} from "@mui/x-data-grid";
-
 
 
 // App: Your top-most parent component. material-ui/docs/data/material/getting-started/templates/dashboard/
 const App = () => {
+    const API_URL = 'http://localhost:8080/api/items/'
     //empty array, initial state of App
     const [appState, setAppState] = useState([])
     const [createdTodo, setCreatedTodo] = useState(null);
@@ -25,35 +23,72 @@ const App = () => {
     const [alert, setAlert] = useState(false)
     const [editedStatus, setEditedStatus] = useState([])
     const [editedContent, setEditedContent] = useState([])
+    const [editedRowId, setEditedRowId] = useState([])
 
-    const processRowUpdate =  (event) => {
-       console.log(event)
-        console.log(event.target.value)
-        patchMe(event.row.id , event.row.content , event.row.completed)
-
-    }
-    const patchMe = (rowId, rowContent, completed) => {
-        console.log(rowContent)
-        axios.patch('http://localhost:3001/api/items/'+rowId, {
-            id: rowId,
-            content: rowContent,
-            completed: completed
-        }).catch(error => console.log(error))
+    const processRowUpdate = (event) => {
+        //The current state
+        if (event.row !== null) {
+            setEditedContent(event.row.content);
+            setEditedStatus(event.row.completed);
+            setEditedRowId(event.row.id)
+        }
     }
 
-    useEffect(patchMe, []);
+
+    const handleRowEditCommit = async (params) => {
+        //what you changed
+        const id = params.id;
+        const key = params.field;
+        const value = params.value;
+
+        //TODO --- wait for processUpdate to finish because it is setting the state...
+        if (key === 'completed') {
+            patchMe(id, key, value)
+            setEditedStatus(null)
+            setEditedRowId(null)
+        } else if (key === 'content') {
+            patchMe(id, key, value)
+            setEditedContent(null)
+            setEditedRowId(null)
+        }
+
+    };
+
+    const patchMe = (rowId, key, value) => {
+
+        if (key === 'completed') {
+            let newValue = false;
+
+            if (value === true) {
+                newValue = true;
+            }
+
+            axios.patch(API_URL + rowId, {
+                id: rowId,
+                completed: newValue
+            }).catch(error => console.log(error))
+        }
+
+        if (key === 'content') {
+            axios.patch(API_URL + rowId, {
+                id: rowId,
+                content: value
+            }).catch(error => console.log(error))
+        }
+        fetchToDoAPI();
+    }
 
     const fetchTextAPI = (event) => {
-            axios
-                .get('http://numbersapi.com/'+event.id)
-                .then(r => setText(r.data))
-                .catch((error) => console.log(error));
+        axios
+            .get('http://numbersapi.com/' + event.id)
+            .then(r => setText(r.data))
+            .catch((error) => console.log(error));
     }
 
 
     const fetchToDoAPI = () => {
         axios
-            .get('http://localhost:3001/api/items')
+            .get(API_URL)
             .then(r => setAppState(r.data))
             .catch((error) => console.log(error));
     }
@@ -68,7 +103,8 @@ const App = () => {
             headerName: 'ID', width: 100
 
         },
-        { field: 'content',
+        {
+            field: 'content',
             headerName: 'Content',
             width: 600,
             editable: true,
@@ -108,103 +144,104 @@ const App = () => {
             return response.json(); // parses JSON response into native JavaScript objects
         }
 
-        postData('http://localhost:3001/api/items', {
+        postData(API_URL, {
             //"id": Math.floor(Math.random() * 1000),
             "content": todo1,
             "completed": todo2
-        }).then(  fetchToDoAPI );
+        })
+        fetchToDoAPI();
 
     };
 
-  const deleteTask = (itemID) => {
-      axios.delete('http://localhost:3001/api/items/'+itemID)
-          .then(r => setAlert(true));
-  }
-  const deleteTaskStart =( ) =>{
+    const deleteTask = (itemID) => {
+        axios.delete(API_URL + itemID)
+            .then(r => setAlert(true));
+    }
+    const deleteTaskStart = () => {
         for (let i = 0; i < rowsChecked.length; i++) {
             deleteTask(rowsChecked[i].id)
         }
     }
 
-    const editTest = (event) => {
-      console.log(event)
-    }
 
-  return (<Grid container spacing={2} columns={12}>
-          <Grid item xs={14}>
-              <ResponsiveAppBar />
-          </Grid>
-          <Grid item xs={1} p={2}>
-              &nbsp;
-          </Grid>
-          <Grid item xs={2} p={2}>
-            <TodoCreator createToDo={createToDo}/>
-              <br /><>
-              <p>Items to be Deleted:
-                  <Button  variant="contained"    style={{
-                  borderRadius: 5,
-                  backgroundColor: "#282828",
-                  padding: "5px 5px",
-                  fontSize: "18px"
-              }}   onClick={() => deleteTaskStart()}>DELETE</Button></p>
-              {
-                  (alert)
-                      ?
+    return (<Grid container spacing={2} columns={12}>
+            <Grid item xs={14}>
+                <ResponsiveAppBar/>
+            </Grid>
+            <Grid item xs={1} p={2}>
+                &nbsp;
+            </Grid>
+            <Grid item xs={2} p={2}>
+                <TodoCreator createToDo={createToDo}/>
+                <br/><>
+                <p className="containsLeft"><h4>Items to be Deleted:</h4>
+                    <FormControl variant="filled" sx={{m: 1, minWidth: 180, bgcolor: '#fff'}}>
+                    <Button variant="contained" style={{
+                        borderRadius: 5,
+                        backgroundColor: "#282828",
+                        padding: "5px 5px",
+                        fontSize: "18px"
+                    }} onClick={() => deleteTaskStart()}>DELETE</Button></FormControl></p>
+                {
+                    (alert)
+                        ?
 
-                         <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">{setTimeout(() => {
-                             setAlert(false); setRowsChecked(null);fetchToDoAPI()}, 3000)}
-                             -Success! Your task have been deleted!</Alert>
-              : null}
-              {
-                  (rowsChecked !== null)
-                      ?
-                      rowsChecked.map(({id, content}) => {
-                      return (<>
-                          <p style={{
-                              borderBottom: "1px solid #000",
-                          }}>{content}</p>
-                      </>)
+                        <Alert icon={<CheckIcon fontSize="inherit"/>} severity="success">{setTimeout(() => {
+                            setAlert(false);
+                            setRowsChecked(null);
+                            fetchToDoAPI()
+                        }, 3000)}
+                            -Success! Your task have been deleted!</Alert>
+                        : null}
+                {
+                    (rowsChecked !== null)
+                        ?
+                        rowsChecked.map(({id, content}) => {
+                            return (<>
+                                <p style={{
+                                    borderBottom: "1px solid #000",
+                                }}>{content}</p>
+                            </>)
 
-                  }) : null
-              }</>
-          </Grid>
-          <Grid item xs={6}  sx={{}}>
-              <Box height="100vh" display="flex" flexDirection="column">
-                  <Box flex={1} overflow="auto">
-                      <div style={{ height: 400, width: '100%', margin:'00px' }}>
-                          <DataGrid
-                              rows={rows}
-                              columns={columns}
-                              pageSize={25}
-                              rowsPerPageOptions={[25]}
-                              checkboxSelection
-                              onRowClick={(event) => {
-                                  fetchTextAPI(event)
-                              }}
-                              onSelectionModelChange={(ids) => {
-                                  const selectedIDs = new Set(ids);
-                                  const selectedRowData = rows.filter((row) =>
-                                      selectedIDs.has(row.id)
-                              );
-                                  setRowsChecked(selectedRowData);
-                              }}
-                              onCellEditStop={processRowUpdate}
-                            //  onRowEditStop={processRowUpdate}
-                              perimentalFeatures={{ newEditingApi: true }}
+                        }) : null
+                }</>
+            </Grid>
+            <Grid item xs={6} sx={{}}>
+                <Box height="83vh" display="flex" flexDirection="column">
 
-                              autoHeight autoPageSize/>
+                    <DataGrid
+                        rows={rows}
+                        columns={columns}
+                        pageSize={10}
+                        rowsPerPageOptions={[10]}
+                        checkboxSelection
+                        onRowClick={(event) => {
+                            fetchTextAPI(event)
+                        }}
+                        onSelectionModelChange={(ids) => {
+                            const selectedIDs = new Set(ids);
+                            const selectedRowData = rows.filter((row) =>
+                                selectedIDs.has(row.id)
+                            );
+                            setRowsChecked(selectedRowData);
+                        }}
+                        onCellEditStop={processRowUpdate}
+                        //  onRowEditStop={processRowUpdate}
+                        perimentalFeatures={{newEditingApi: true}}
+                        onCellEditCommit={(params) => setTimeout(handleRowEditCommit(params), 1000)}
+                        autoHeight autoPageSize/>
 
-                      </div>
-                  </Box></Box>
-          </Grid>
-          <Grid item xs={2}>
-              <Items text={text} />
-          </Grid>
-          <Grid item xs={12}>
-              <LabelBottomNavigation />
-          </Grid>
-      </Grid>
 
-  )
+                </Box>
+            </Grid>
+            <Grid item xs={2}>
+                <Items text={text}/>
+            </Grid>
+            <Grid item xs={12}>
+                <LabelBottomNavigation/>
+            </Grid>
+        </Grid>
+
+    )
 }
 export default App;

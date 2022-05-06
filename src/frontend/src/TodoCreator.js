@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useForm} from 'react-hook-form';
-import {Box, Button, FormControl, OutlinedInput} from "@mui/material";
+import {Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select} from "@mui/material";
 //
 //     TodoCreator: Creates new items for the To Do list
 //
@@ -10,7 +10,6 @@ const TodoCreator = (props) => {
 
     const [formContentValue, setContentValue] = useState('');
     const [formCompleteValue, setFormCompleteValue] = useState('');
-
 
 
     const {handleSubmit} = useForm();
@@ -28,16 +27,33 @@ const TodoCreator = (props) => {
     }
 
 
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} >
+        <form onSubmit={handleSubmit(onSubmit)}>
             <Box noValidate autoComplete="off">
                 <p>Create your To-Do list using the form below!</p>
-                    <OutlinedInput label="content" name="content"  placeholder="Content" onChange={handleChangeContent}/>
+                <FormControl variant="filled" sx={{m: 1, minWidth: 180}}>
+                    <OutlinedInput label="content" name="content" placeholder="Content" onChange={handleChangeContent}/>
+                </FormControl>
                 <br/><br/>
-                    <OutlinedInput label="completed" placeholder="Status" onChange={handleChangeStatus}/>
+                {/*<OutlinedInput label="completed" placeholder="Status" onChange={handleChangeStatus}/>*/}
+                <FormControl variant="filled" sx={{m: 1, minWidth: 180, bgcolor: '#fff'}}>
+                    <InputLabel id="select-filled-label">Status</InputLabel>
+                    <Select
+                        labelId="select-true-or-false"
+                        id="select-true-or-false"
+                        onChange={handleChangeStatus}
+                    >
+                        <MenuItem value={true}>True</MenuItem>
+                        <MenuItem value={false}>False</MenuItem>
+                    </Select>
+                </FormControl>
                 <br/> <br/>
-                <Button variant="contained" onClick={() => props.createToDo(formContentValue, formCompleteValue)}>Add Item</Button>
+                <FormControl variant="filled" sx={{m: 1, minWidth: 180, bgcolor: '#fff'}}>
+                    <Button variant="contained"
+                            sx={{ bgcolor: '#282821'}}
+                            onClick={() => props.createToDo(formContentValue, formCompleteValue)}>Add
+                        Item</Button>
+                </FormControl>
             </Box>
         </form>)
 }
