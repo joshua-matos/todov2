@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@agney/react-loading": "^0.1.2",
     "@ant-design/icons": "^4.7.0",
+    "@arcgis/core": "^4.23.7",
+    "@esri/react-arcgis": "^5.1.0",
     "@mui/x-data-grid": "^5.10.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^13.5.0",
@@ -11,8 +14,12 @@
     "@types/node": "^17.0.31",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
-    "antd": "^4.20.2",
     "axios": "^0.27.2",
+    "esri": "^0.0.1-security",
+    "esri-loader": "^3.5.0",
+    "less-loader": "^10.2.0",
+    "ncp": "^2.0.0",
+    "prop-types": "^15.8.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-hook-form": "^7.30.0",
@@ -21,11 +28,12 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npm run copy && react-scripts start && concurrently --kill-others \"less-watch-compiler --config less-watcher.config.json\" \"react-scripts start\"",
+    "build": "npm run copy && react-scripts build && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "copy": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
   },
   "eslintConfig": {
     "extends": [
@@ -51,7 +59,10 @@
     "@mui/icons-material": "^5.6.2",
     "@mui/material": "^5.6.4",
     "@testing-library/react": "^13.2.0",
+    "concurrently": "^7.1.0",
     "cypress": "^9.6.0",
-    "cypress-jest-adapter": "^0.1.1"
+    "cypress-jest-adapter": "^0.1.1",
+    "less": "^4.1.2",
+    "less-watch-compiler": "^1.16.3"
   }
 }

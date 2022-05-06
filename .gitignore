@@ -8,6 +8,8 @@ build/
 src/frontend/node_modules/
 /node_modules/
 node_modules/
+ public/assets/
+ */public/assets/**
 ### STS ###
 .apt_generated
 .classpath

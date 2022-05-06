@@ -1,5 +1,6 @@
 package com.joshuamatos.todopractice1.backend;
 
+import com.joshuamatos.todopractice1.exception.ApiException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,17 +34,12 @@ public class ToDoService {
                 .findById(
                        id)
                 .orElseThrow(() ->
-                new IllegalStateException("no task present"));
+                new ApiException("no task present"));
 
         if(todo.getContent() != null && todo.getContent().length() > 0) {
             updateToDo.setContent(todo.getContent());
         }
-
-        if(todo.isCompleted() != updateToDo.isCompleted() && todo.isCompleted() == false) {
-            updateToDo.setCompleted(false);
-        } else {
-            updateToDo.setCompleted(true);
-        }
+        updateToDo.setCompleted(todo.isCompleted() != updateToDo.isCompleted() || todo.isCompleted());
     }
 
     //delete item

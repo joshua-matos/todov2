@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useForm} from 'react-hook-form';
-import {Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select} from "@mui/material";
+import {Box, Button, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField} from "@mui/material";
 //
 //     TodoCreator: Creates new items for the To Do list
 //
@@ -29,10 +29,15 @@ const TodoCreator = (props) => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <Box noValidate autoComplete="off">
+            <Box noValidate autoComplete="off" className="containsLeft">
                 <p>Create your To-Do list using the form below!</p>
-                <FormControl variant="filled" sx={{m: 1, minWidth: 180}}>
-                    <OutlinedInput label="content" name="content" placeholder="Content" onChange={handleChangeContent}/>
+                <FormControl variant="filled" sx={{m: 1, minWidth: 180, }}>
+                    <TextField
+                        label="content"
+                        width={180}
+                        name="content"
+                        rows={10}
+                        placeholder="Content" onChange={handleChangeContent}/>
                 </FormControl>
                 <br/><br/>
                 {/*<OutlinedInput label="completed" placeholder="Status" onChange={handleChangeStatus}/>*/}
@@ -42,6 +47,7 @@ const TodoCreator = (props) => {
                         labelId="select-true-or-false"
                         id="select-true-or-false"
                         onChange={handleChangeStatus}
+                        value={false}
                     >
                         <MenuItem value={true}>True</MenuItem>
                         <MenuItem value={false}>False</MenuItem>
@@ -50,7 +56,7 @@ const TodoCreator = (props) => {
                 <br/> <br/>
                 <FormControl variant="filled" sx={{m: 1, minWidth: 180, bgcolor: '#fff'}}>
                     <Button variant="contained"
-                            sx={{ bgcolor: '#282821'}}
+                            sx={{bgcolor: '#282821'}}
                             onClick={() => props.createToDo(formContentValue, formCompleteValue)}>Add
                         Item</Button>
                 </FormControl>

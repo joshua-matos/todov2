@@ -25,6 +25,7 @@ public class ToDo {
         this.content = content;
         this.completed = completed;
     }
+
     public ToDo() {}
 
     public Long getId() {

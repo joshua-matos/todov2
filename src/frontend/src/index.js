@@ -1,15 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+ import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { WebMap } from "./components/WebMap";
+// import '@arcgis/core/assets/esri/themes/dark/main.css';
+import { Map } from '@esri/react-arcgis';
+import MyMap from "./components/MyMap";
+import BermudaTriangle from "./components/BermudaTriangle";
+import { Scene } from '@esri/react-arcgis';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <App/>
+<div className="containerForMap">
+    <App />
+</div>
 );
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
